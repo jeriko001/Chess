@@ -3352,7 +3352,7 @@
                         type: "module"
                     }),
                     this.config = {
-                        pieceTheme: "/Chess/img/chesspieces/font-awesome/{piece}.svg",
+                        pieceTheme: "img/chesspieces/font-awesome/{piece}.svg",
                         position: "start",
                         draggable: !0,
                         onDragStart: this.onDragStart,
@@ -3371,13 +3371,13 @@
                         window.game.moves++,
                         window.Alpine.store("game").moves++,
                         "w" === window.game.playingAs && "w" !== window.game.chess.turn() ? window.game.board = Chessboard("board", {
-                            pieceTheme: "/Chess/img/chesspieces/font-awesome/{piece}.svg",
+                            pieceTheme: "img/chesspieces/font-awesome/{piece}.svg",
                             position: window.game.chess.fen(),
                             draggable: !0,
                             onDragStart: window.game.onDragStart,
                             onDrop: window.game.onDrop
                         }) : "b" === window.game.playingAs && "b" !== window.game.chess.turn() && (window.game.board = Chessboard("board", {
-                            pieceTheme: "/Chess/img/chesspieces/font-awesome/{piece}.svg",
+                            pieceTheme: "img/chesspieces/font-awesome/{piece}.svg",
                             position: window.game.chess.fen(),
                             draggable: !0,
                             onDragStart: window.game.onDragStart,
