@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html
+    lang="en"
+    dir="ltr"
+>
+    <head>
+        <meta charset="utf-8">
+
+        <link rel="stylesheet" href="css/main.css"/>
+        <link rel="stylesheet" href="css/ctr.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Pixel Chess is a chess engine written in pure JavaScript. It plays at roughly 1,500 ELO and is being actively developed to be stronger." />
+
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="js/chessboard.js"></script>
+
+        <title>
+            Pixel Chess | Play Chess vs. AI
+        </title>
+    </head>
+    <body>
+        <main
+            x-data="{
+                gameStarted: false,
+                howItWorksOpen: false,
+                creditsOpen: false,
+                aiSettingsOpen: false,
+            }"
+            class="w-screen h-screen flex items-center justify-center screen"
+        >
+            <section
+                x-cloak
+                x-show="gameStarted === true"
+                x-transition
+            >
+
+                <div class="flex flex-row items-center justify-center">
+                    <div class="hidden w-64 lg:flex flex-col items-end">
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.w.p">
+                                <img
+                                    src="/img/chesspieces/font-awesome/wP.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.w.n">
+                                <img
+                                    src="/img/chesspieces/font-awesome/wN.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.w.b">
+                                <img
+                                    src="/img/chesspieces/font-awesome/wB.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.w.r">
+                                <img
+                                    src="/img/chesspieces/font-awesome/wR.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.w.q">
+                                <img
+                                    src="/img/chesspieces/font-awesome/wQ.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                    </div>
+
+                    <div
+                        id="board"
+                        class="w-screen lg:w-104 flex justify-center mb-5 p-5 lg:p-0"
+                    ></div>
+
+                    <div class="hidden lg:block w-64">
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.b.p">
+                                <img
+                                    src="/img/chesspieces/font-awesome/bP.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.b.n">
+                                <img
+                                    src="/img/chesspieces/font-awesome/bN.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.b.b">
+                                <img
+                                    src="/img/chesspieces/font-awesome/bB.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.b.r">
+                                <img
+                                    src="/img/chesspieces/font-awesome/bR.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                        <div class="flex flex-row">
+                            <template x-for="(capture, index) in $store.game.captures.b.q">
+                                <img
+                                    src="/img/chesspieces/font-awesome/bQ.svg"
+                                    width="30px"
+                                    :class="index !== 0 ? '-ml-5' : ''"
+                                />
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <div class="flex flex-row mb-10">
+                        <div
+                            x-show="$store.game.moves > 0"
+                            class="pixel-border animate smaller mr-5"
+                            @click="window.game.reset()"
+                        >
+                            Resign
+                        </div>
+
+                        <div
+                            x-show="$store.game.moves === 0"
+                            class="pixel-border animate smaller mr-5"
+                            @click="window.game.reset()"
+                        >
+                            Reset
+                        </div>
+
+                        <div
+                            class="pixel-border animate smaller mr-5"
+                            @click="window.game.flip()"
+                        >
+                            Flip
+                        </div>
+                        <div
+                            class="pixel-border animate smaller mr-5"
+                            @click="aiSettingsOpen = true"
+                        >
+                            AI
+                        </div>
+                    </div>
+
+                    <div class="w-24 h-10 text-xs text-fluorescent-blue">
+                        <div
+                            x-show="$store.game.thinking === true"
+                            x-transition
+                        >
+                            Thinking...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                id="ai-settings"
+                x-cloak
+                x-show="aiSettingsOpen === true"
+                class="fixed top-0 left-0 w-full h-full flex items-center justify-center"
+                style="background: rgba(0,0,0,0.4)"
+            >
+                <div
+                    x-show="aiSettingsOpen === true"
+                    x-transition
+                    class="pixel-border w-full h-full lg:h-auto lg:w-1/2 flex flex-col justify-center items-center p-5 text-center"
+                >
+                    <h2 class="text-xl text-fluorescent-blue mb-5">
+                        AI Settings
+                    </h2>
+
+                    <h3 class="text-sm mb-3">
+                        Search Depth
+                    </h3>
+
+                    <input
+                        x-model="$store.game.ai.searchDepth"
+                        type="range"
+                        min="1"
+                        max="4"
+                        value="2"
+                        class="mb-2"
+                    />
+
+                    <div
+                        x-text="$store.game.ai.searchDepth + ' ply'"
+                        class="mb-10 text-xs text-phiox"
+                    ></div>
+
+                    <h3 class="text-sm mb-3">
+                        Max Search Time
+                    </h3>
+
+                    <input
+                        x-model="$store.game.ai.allocatedSearchTime"
+                        type="range"
+                        min="100"
+                        max="60000"
+                        value="30000"
+                        class="mb-2"
+                    />
+
+                    <div
+                        x-text="(Math.round($store.game.ai.allocatedSearchTime / 1000)) + ' seconds'"
+                        class="mb-10 text-xs text-phiox"
+                    ></div>
+
+                    <div
+                        class="pixel-border animate smaller"
+                        @click="aiSettingsOpen = false"
+                    >
+                        Done
+                    </div>
+                </div>
+            </section>
+
+            <section
+                id="endgame-screen"
+                x-cloak
+                x-show="
+                    $store.game.inCheckmate === true ||
+                    $store.game.inStalemate === true ||
+                    $store.game.inDraw === true ||
+                    $store.game.insufficientMaterial === true ||
+                    $store.game.inThreefoldRepetition === true
+                "
+                class="fixed top-0 left-0 w-full h-full flex items-center justify-center"
+                style="background: rgba(0,0,0,0.4)"
+            >
+                <div
+                    x-show="
+                        $store.game.inCheckmate === true ||
+                        $store.game.inStalemate === true ||
+                        $store.game.inDraw === true ||
+                        $store.game.insufficientMaterial === true ||
+                        $store.game.inThreefoldRepetition === true
+                    "
+                    x-transition
+                    class="pixel-border w-1/4 flex flex-col justify-center items-center p-5 text-center"
+                >
+                    <template x-if="$store.game.inCheckmate === true">
+                        <h2 class="text-xl text-fluorescent-blue mb-8">
+                            Checkmate!
+                        </h2>
+                    </template>
+                    <template x-if="$store.game.inStalemate === true">
+                        <h2 class="text-xl text-fluorescent-blue mb-8">
+                            Stalemate...
+                        </h2>
+                    </template>
+                    <template x-if="$store.game.inDraw === true">
+                        <h2 class="text-xl text-fluorescent-blue mb-8">
+                            Draw
+                        </h2>
+                    </template>
+                    <template x-if="$store.game.insufficientMaterial === true">
+                        <h2 class="text-xl text-fluorescent-blue mb-8">
+                            Draw by insufficient material
+                        </h2>
+                    </template>
+                    <template x-if="$store.game.inThreefoldRepetition === true">
+                        <h2 class="text-xl text-fluorescent-blue mb-8">
+                            Draw by repetition
+                        </h2>
+                    </template>
+
+                    <div
+                        class="pixel-border animate smaller"
+                        @click="window.game.reset()"
+                    >
+                        Restart
+                    </div>
+                </div>
+            </section>
+
+            <section
+                id="menu"
+                class="flex flex-col justify-center items-center text-center p-5"
+                x-cloak
+                x-show="gameStarted === false"
+            >
+                <h1 class="glitch text-5xl mb-12 leading-tight">
+                    Pixel Chess
+                </h1>
+
+                <div
+                    class="pixel-border animate w-3/4 lg:w-60 mb-12"
+                    @click="gameStarted = true"
+                >
+                    Start
+                </div>
+
+                <div
+                    class="pixel-border animate w-3/4 lg:w-60 mb-12"
+                    @click="howItWorksOpen = true"
+                >
+                    How it works
+                </div>
+
+                <div
+                    class="pixel-border animate w-3/4 lg:w-60 mb-12"
+                    @click="creditsOpen = true"
+                >
+                    Credits
+                </div>
+
+            </section>
+
+            <section
+                id="how-it-works"
+                x-cloak
+                x-show="howItWorksOpen === true"
+                class="fixed top-0 left-0 w-full h-full flex items-center justify-center"
+                style="background: rgba(0,0,0,0.9)"
+            >
+                <div
+                    @click="howItWorksOpen = false"
+                    class="absolute top-0 right-0 m-5 text-black lg:text-white hover:text-fluorescent-blue text-3xl cursor-pointer">
+                    X
+                </div>
+
+                <div
+                    x-show="howItWorksOpen === true"
+                    x-transition
+                    class="pixel-border h-full lg:h-auto w-full lg:w-2/3 flex flex-col justify-center items-center p-5 text-center overflow-scroll"
+                >
+                    <h2 class="text-xl text-fluorescent-blue mb-5">
+                        How it works
+                    </h2>
+                    <p class="text-xs mb-5">
+                        The engine behind Pixel Chess works much like any other traditional
+                        chess engine. Written 100% in JavaScript, the AI uses an
+                        algorithm to look a number of moves ahead and then an
+                        evaluation function to decide on the best move.
+                    </p>
+                    <p class="text-xs mb-5">
+                        This evaluation function takes into consideration a
+                        number of factors, including the material value of pieces,
+                        positioning, mobility and more to weight a score towards
+                        a certain position to be played.
+                    </p>
+                    <p class="text-xs mb-5">
+                        This project was coded over roughly 2-weeks so there are
+                        many improvements that could be made to the AI.
+                    </p>
+                </div>
+            </section>
+
+            <section
+                id="credits"
+                x-cloak
+                x-show="creditsOpen === true"
+                class="fixed top-0 left-0 w-full h-full flex items-center justify-center"
+                style="background: rgba(0,0,0,0.9)"
+            >
+                <div
+                    @click="creditsOpen = false"
+                    class="absolute top-0 right-0 m-5 text-black lg:text-white hover:text-fluorescent-blue text-3xl cursor-pointer">
+                    X
+                </div>
+
+                <div
+                    x-show="creditsOpen === true"
+                    x-transition
+                    class="pixel-border w-full h-full lg:h-auto lg:w-2/3 flex flex-col justify-center items-center p-5 text-center overflow-scroll"
+                >
+                    <h2 class="text-xl text-fluorescent-blue mb-5">
+                        Credits
+                    </h2>
+                    <p class="text-xs mb-10">
+                        Engine programming
+                        <a
+                            href="https://barr.media"
+                            class="text-phiox hover:opacity-75"
+                            target="_blank"
+                        >
+                            Barr Media
+                        </a>
+                    </p>
+                    <h2 class="text-xl text-fluorescent-blue mb-5">
+                        With thanks to
+                    </h2>
+                    <p class="text-xs mb-5">
+                        Legal move validation
+                        <a
+                            href="https://github.com/jhlywa/chess.js"
+                            class="text-phiox hover:opacity-75"
+                            target="_blank"
+                        >
+                            Chess.js
+                        </a>
+                    </p>
+                    <p class="text-xs mb-5">
+                        Chessboard
+                        <a
+                            href="https://chessboardjs.com/index.html"
+                            class="text-phiox hover:opacity-75"
+                            target="_blank"
+                        >
+                            chessboard.js
+                        </a>
+                    </p>
+                </div>
+            </section>
+        </main>
+        <script src="js/main.js"></script>
+    </body>
+</html>

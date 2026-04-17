@@ -1,0 +1,23 @@
+body {
+    background-color: #1f1027;
+    overflow: hidden;
+    position: relative
+}
+
+body:before {
+    background: linear-gradient(rgba(31,16,39,0) 50%,rgba(2,1,3,.25) 0),linear-gradient(90deg,rgba(255,0,0,.06),rgba(0,255,0,.02),rgba(0,0,255,.06));
+    background-size: 100% 2px,3px 100%;
+    bottom: 0;
+    content: " ";
+    display: block;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 2
+}
+
+body>.screen {
+    filter: contrast(1) saturate(1.3)
+}
